@@ -14,7 +14,6 @@ Vote.init(
             type: DataTypes.INTEGER,
             allowNull: false,
             refereneces: {
-
                 model: 'user',
                 key: 'id'
             }
