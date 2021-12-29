@@ -1,19 +1,28 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection')
-const { Post, User, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require('../../models');
 
-// get all users posts
+// get all users posts /api/posts
 router.get('/', (req, res) => {
     console.log('=======================');
     Post.findAll({
-        attributes: ['id', 'post_url', 'title', 'created_at',
-        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
-      ],
         order: [['created_at', 'DESC']],
-        include: {
+        attributes: ['id', 'post_url', 'title', 'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']],
+        include: [
+          {
+            model: Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {
+              model: User,
+              attributes: ['username']
+            }
+          },
+          {
             model: User,
             attributes: ['username']
-        }
+          }
+        ]
     }).then(dbPostData => res.json(dbPostData))
     .catch(err => {
         console.log(err);
@@ -31,10 +40,18 @@ router.get('/:id', (req, res) => {
         [sequelize.literal('(SELECT COUNT (*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
       ],
         include: [
-            {
-                model: User,
-                attributes: ['username']
+          {
+            model: Comment,
+            attributes: ['id', 'post_id', 'user_id', 'comment_text', 'created_at'],
+            include: {
+              model: User,
+              attributes: ['username']
             }
+          },
+          {
+            model: User,
+            attributes: ['username']
+          }
         ]
     }).then(dbPostData => {
         if(!dbPostData) {
@@ -48,7 +65,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-// post/add a new user post
+// post/add a new user post /api/posts
 router.post('/', (req,res) => {
     // expects {"title": "Taskmaster goes public!", "post_url": "https://taskmaster.com/press", "user_id": 1}
     Post.create({
@@ -73,7 +90,7 @@ router.put('/upvote', (req, res) => {
   });
 });
 
-// put/update a users post
+// put/update a users post /api/posts/1
 router.put('/:id', (req, res) => {
     Post.update(
       {
@@ -98,7 +115,7 @@ router.put('/:id', (req, res) => {
       });
 });
 
-// delete a users post
+// delete a users post /api/posts/1
 router.delete('/:id', (req, res) => {
     Post.destroy({
       where: {
