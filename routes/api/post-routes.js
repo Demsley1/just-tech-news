@@ -1,11 +1,14 @@
 const router = require('express').Router();
-const { Post, User } = require('../../models');
+const sequelize = require('../../config/connection')
+const { Post, User, Vote } = require('../../models');
 
 // get all users posts
 router.get('/', (req, res) => {
     console.log('=======================');
     Post.findAll({
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: ['id', 'post_url', 'title', 'created_at',
+        [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
         order: [['created_at', 'DESC']],
         include: {
             model: User,
@@ -18,13 +21,15 @@ router.get('/', (req, res) => {
     });
 });
 
-// get one users posts
+// get one users posts api/posts/id
 router.get('/:id', (req, res) => {
     Post.findOne({
         where: {
             id: req.params.id
         }, 
-        attributes: ['id', 'post_url', 'title', 'created_at'],
+        attributes: ['id', 'post_url', 'title', 'created_at',
+        [sequelize.literal('(SELECT COUNT (*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+      ],
         include: [
             {
                 model: User,
@@ -45,7 +50,7 @@ router.get('/:id', (req, res) => {
 
 // post/add a new user post
 router.post('/', (req,res) => {
-    // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
+    // expects {"title": "Taskmaster goes public!", "post_url": "https://taskmaster.com/press", "user_id": 1}
     Post.create({
         title: req.body.title,
         post_url: req.body.post_url,
@@ -55,6 +60,37 @@ router.post('/', (req,res) => {
         console.log(err);
         res.status(500).json(err);
     });
+});
+
+// Put /api/posts/upvote
+router.put('/upvote', (req, res) => {
+  Vote.create({
+    user_id: req.body.user_id,
+    post_id: req.body.post_id
+  }).then(() => {
+    // then find the post we just voted on
+    return Post.findOne({
+      where: {
+        id: req.body.post_id
+      },
+      attributes: [
+        'id',
+        'post_url',
+        'title',
+        'created-at',
+        // use raw MySQL aggregate function query to get a count of how many votes has and return it under the name `vote_count`
+        [
+          sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
+          'vote_count'
+        ]
+      ]
+    })
+  })
+  .then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(400).json(err);
+  });
 });
 
 // put/update a users post
