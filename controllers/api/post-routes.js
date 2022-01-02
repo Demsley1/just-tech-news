@@ -29,7 +29,11 @@ router.get('/', (req, res) => {
         attributes: ['username']
       }
     ]
-  })  
+  }).then(dbPostData => res.json(dbPostData))
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
+  });  
 });
 
 // get one users post
@@ -67,7 +71,7 @@ router.get('/:id', (req, res) => {
 
 // create a users post
 router.post('/', (req, res) => {
-    // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
+    // expects {"title": "Taskmaster goes public!", "post_url": "https://taskmaster.com/press", "user_id": 1}
     Post.create({
       title: req.body.title,
       post_url: req.body.post_url,
@@ -82,6 +86,7 @@ router.post('/', (req, res) => {
 
 // PUT /api/posts/upvote
 router.put('/upvote', (req, res) => {
+  // expects {  "user_id": 1, "post_id": 1 }
   // custom static method created in models/Post.js
   Post.upvote(req.body, { Vote })
     .then(updatedPostData => res.json(updatedPostData))
