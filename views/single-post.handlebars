@@ -1,4 +1,5 @@
-<article class="post">
+{{>post-info post}}
+<!--<article class="post">
     <div class="title">
         <a href="{{post.post_url}}" target="_blank">{{post.title}}</a>
         <span>({{post.post_url}})</span>
@@ -9,32 +10,22 @@
         | 
         <a href="/post/{{post.id}}">{{post.comments.length}} comments(s)</a>
     </div>
-    {{#if loggedIn}}
-    <form class="comment-form">
-        <div>
-            <textarea name="comment-body"></textarea>
-        </div>
+</article>-->
 
-        <div>
-            <button type="submit">add comment</button>
-            <button type="button" class="upvote-btn">upvote</button>
-        </div>
-    </form>
-    {{/if}}
-
-    <div class="comments">
-        {{#each post.comments}}
-        <section class="comment">
-            <div clas="meta">
-                {{user.username}} on {{created_at}}
-            </div>
-            <div class="text">
-                {{comment_text}}
-            </div>
-        </section>
-        {{/each}}
+{{#if loggedIn}}
+<form class="comment-form">
+    <div>
+        <textarea name="comment-body"></textarea>
     </div>
-</article>
+
+    <div>
+        <button type="submit">add comment</button>
+        <button type="button" class="upvote-btn">upvote</button>
+    </div>
+</form>
+{{/if}}
+
+{{>comments post.comments}}
 {{#if loggedIn}}
 <script src="/javascript/comment.js"></script>
 <script src="/javascript/upvote.js"></script>
