@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   // expects { "comment_text": "Wow this website has really taken off in a short time.", "user_id": 1, "post_id": 1 }
-  if(req.session){
+  if(req.session) {
     Comment.create({
       comment_text: req.body.comment_text,
       post_id: req.body.post_id,
