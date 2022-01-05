@@ -12,7 +12,6 @@ Post.belongsTo(User, {
     foreignKey: 'user_id'
 });
 
-
 Vote.belongsTo(User, {
     foreignKey: 'user_id'
 });

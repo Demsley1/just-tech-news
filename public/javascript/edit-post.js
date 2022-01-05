@@ -1,16 +1,16 @@
 async function handleEditPost(event) {
     event.preventDefault();
 
-    const post_title = document.getElementById('post-title').value;
-    const post_id = window.location.toString().split('/')[
+    const title = document.getElementById('post-title').value;
+    const id = window.location.toString().split('/')[
         window.location.toString().split('/').length - 1
-    ]
+    ];
 
-    if(post_title){
-        const response = await fetch (`/api/posts/${post_id}`, {
+    if(title){
+        const response = await fetch (`/api/posts/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
-                post_title
+                title
             }),
             headers: { 'Content-Type': 'application/json' }
         });
@@ -23,4 +23,4 @@ async function handleEditPost(event) {
     }
 }
 
-document.querySelector('.edit-post-form').addEventListener('submit', handleEditPost)
+document.querySelector('.edit-post-form').addEventListener('submit', handleEditPost);
