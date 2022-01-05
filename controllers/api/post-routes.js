@@ -102,7 +102,6 @@ router.put('/upvote', withAuth, (req, res) => {
   }
 });
 
-
 // update a users post 
 router.put('/:id', withAuth, (req, res) => {
     Post.update(
