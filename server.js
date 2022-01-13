@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const sess = {
-    secret: 'Super secret secret',
+    secret: process.env.SECRET,
     cookie: {},
     resave: false,
     saveUninitialized: true,
@@ -28,7 +28,6 @@ app.use(session(sess));
 
 // turn on routes
 app.use(routes);
-
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
